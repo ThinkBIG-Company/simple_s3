@@ -8,7 +8,8 @@ import 'package:mime_type/mime_type.dart';
 class SimpleS3 {
   static const MethodChannel _methodChannel = const MethodChannel('simple_s3');
 
-  static const EventChannel _eventChannel = const EventChannel("simple_s3_events");
+  static const EventChannel _eventChannel =
+      const EventChannel("simple_s3_events");
 
   ///Provide stream of dynamic type. This stream contains upload percentage.
   Stream get getUploadPercentage => _eventChannel.receiveBroadcastStream();
@@ -20,6 +21,8 @@ class SimpleS3 {
   Future<String> uploadFile(
     File file,
     String bucketName,
+    String accessKey,
+    String secretKey,
     String poolID,
     _AWSRegion region, {
     String s3FolderPath: "",
@@ -34,7 +37,9 @@ class SimpleS3 {
     var result;
     String contentType;
 
-    if (!await file.exists()) throw SimpleS3Errors.FileDoesNotExistsError;
+    if (!await file.exists()) {
+      throw SimpleS3Errors.FileDoesNotExistsError;
+    }
 
     if (!(fileName != null && fileName.length > 0)) {
       String originalFileName = file.path.split('/').last.replaceAll(" ", "");
@@ -45,7 +50,8 @@ class SimpleS3 {
         if (timeStampLocation == TimestampLocation.prefix) {
           fileName = '$timestamp\_$originalFileName';
         } else {
-          fileName = '${originalFileName.split(".").first}\_$timestamp\.${originalFileName.split(".").last}';
+          fileName =
+              '${originalFileName.split(".").first}\_$timestamp\.${originalFileName.split(".").last}';
         }
       } else
         fileName = originalFileName;
@@ -62,6 +68,9 @@ class SimpleS3 {
       debugPrint(" ");
     }
 
+    args.putIfAbsent("accessKey", () => accessKey);
+    args.putIfAbsent("secretKey", () => secretKey);
+
     args.putIfAbsent("filePath", () => file.path);
     args.putIfAbsent("poolID", () => poolID);
     args.putIfAbsent("region", () => region.region);
@@ -70,14 +79,17 @@ class SimpleS3 {
     args.putIfAbsent("s3FolderPath", () => s3FolderPath);
     args.putIfAbsent("debugLog", () => debugLog);
     args.putIfAbsent("contentType", () => contentType);
-    args.putIfAbsent("subRegion", () => subRegion != null ? subRegion.region : "");
+    args.putIfAbsent(
+        "subRegion", () => subRegion != null ? subRegion.region : "");
     args.putIfAbsent("accessControl", () => accessControl.index);
 
     bool methodResult = await _methodChannel.invokeMethod('upload', args);
 
     if (methodResult) {
       String _region = subRegion != null ? subRegion.region : region.region;
-      String _path = s3FolderPath != "" ? bucketName + "/" + s3FolderPath + "/" + fileName : bucketName + "/" + fileName;
+      String _path = s3FolderPath != ""
+          ? bucketName + "/" + s3FolderPath + "/" + fileName
+          : bucketName + "/" + fileName;
 
       result = "https://s3-$_region.amazonaws.com/$_path";
 
@@ -108,6 +120,8 @@ class SimpleS3 {
   static Future<bool> delete(
     String filePath,
     String bucketName,
+    String accessKey,
+    String secretKey,
     String poolID,
     _AWSRegion region, {
     _AWSRegion? subRegion,
@@ -122,12 +136,16 @@ class SimpleS3 {
       debugPrint(" ");
     }
 
+    args.putIfAbsent("accessKey", () => accessKey);
+    args.putIfAbsent("secretKey", () => secretKey);
+
     args.putIfAbsent("poolID", () => poolID);
     args.putIfAbsent("region", () => region.region);
     args.putIfAbsent("bucketName", () => bucketName);
     args.putIfAbsent("filePath", () => filePath);
     args.putIfAbsent("debugLog", () => debugLog);
-    args.putIfAbsent("subRegion", () => subRegion != null ? subRegion.region : "");
+    args.putIfAbsent(
+        "subRegion", () => subRegion != null ? subRegion.region : "");
 
     bool methodResult = await _methodChannel.invokeMethod('delete', args);
 
@@ -159,27 +177,9 @@ class _AWSRegion {
 ///AWS regions class created for consistency maintenance
 ///contains static getters which returns an private class internally.
 class AWSRegions {
-  static _AWSRegion get usEast1 => new _AWSRegion("us-east-1");
+  static _AWSRegion get afSouth1 => new _AWSRegion("af-south-1");
 
-  static _AWSRegion get usEast2 => new _AWSRegion("us-east-2");
-
-  static _AWSRegion get usWest1 => new _AWSRegion("us-west-1");
-
-  static _AWSRegion get usWest2 => new _AWSRegion("us-west-2");
-
-  static _AWSRegion get euWest1 => new _AWSRegion("eu-west-1");
-
-  static _AWSRegion get euWest2 => new _AWSRegion("eu-west-2");
-
-  static _AWSRegion get euWest3 => new _AWSRegion("eu-west-3");
-
-  static _AWSRegion get euNorth1 => new _AWSRegion("eu-north-1");
-
-  static _AWSRegion get euCentral1 => new _AWSRegion("eu-central-1");
-
-  static _AWSRegion get apSouthEast1 => new _AWSRegion("ap-southeast-1");
-
-  static _AWSRegion get apSouthEast2 => new _AWSRegion("ap-southeast-2");
+  static _AWSRegion get apEast1 => new _AWSRegion("ap-east-1");
 
   static _AWSRegion get apNorthEast1 => new _AWSRegion("ap-northeast-1");
 
@@ -187,21 +187,41 @@ class AWSRegions {
 
   static _AWSRegion get apSouth1 => new _AWSRegion("ap-south-1");
 
-  static _AWSRegion get apEast1 => new _AWSRegion("ap-east-1");
+  static _AWSRegion get apSouthEast1 => new _AWSRegion("ap-southeast-1");
 
-  static _AWSRegion get saEast1 => new _AWSRegion("sa-east-1");
-
-  static _AWSRegion get cnNorth1 => new _AWSRegion("cn-north-1");
+  static _AWSRegion get apSouthEast2 => new _AWSRegion("ap-southeast-2");
 
   static _AWSRegion get caCentral1 => new _AWSRegion("ca-central-1");
 
-  static _AWSRegion get usGovWest1 => new _AWSRegion("us-gov-west-1");
-
-  static _AWSRegion get usGovEast1 => new _AWSRegion("us-gov-east-1");
+  static _AWSRegion get cnNorth1 => new _AWSRegion("cn-north-1");
 
   static _AWSRegion get cnNorthWest1 => new _AWSRegion("cn-northwest-1");
 
+  static _AWSRegion get euCentral1 => new _AWSRegion("eu-central-1");
+
+  static _AWSRegion get euNorth1 => new _AWSRegion("eu-north-1");
+
+  static _AWSRegion get euWest1 => new _AWSRegion("eu-west-1");
+
+  static _AWSRegion get euWest2 => new _AWSRegion("eu-west-2");
+
+  static _AWSRegion get euWest3 => new _AWSRegion("eu-west-3");
+
   static _AWSRegion get meSouth1 => new _AWSRegion("me-south-1");
+
+  static _AWSRegion get saEast1 => new _AWSRegion("sa-east-1");
+
+  static _AWSRegion get usEast1 => new _AWSRegion("us-east-1");
+
+  static _AWSRegion get usEast2 => new _AWSRegion("us-east-2");
+
+  static _AWSRegion get usGovEast1 => new _AWSRegion("us-gov-east-1");
+
+  static _AWSRegion get usGovWest1 => new _AWSRegion("us-gov-west-1");
+
+  static _AWSRegion get usWest1 => new _AWSRegion("us-west-1");
+
+  static _AWSRegion get usWest2 => new _AWSRegion("us-west-2");
 }
 
 ///TimeStamp enum
