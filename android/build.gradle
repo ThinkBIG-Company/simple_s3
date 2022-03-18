@@ -4,42 +4,47 @@ version '1.0-SNAPSHOT'
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
-        classpath 'com.amazonaws:aws-android-sdk-appsync-gradle-plugin:2.7.5'
+        classpath 'com.android.tools.build:gradle:7.1.2'
     }
 }
 
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+
+        maven {url "https://storage.googleapis.com/download.flutter.io"}
     }
 }
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion 16
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-    lintOptions {
-        disable 'InvalidPackage'
     }
 }
 
 dependencies {
-    implementation 'com.amazonaws:aws-android-sdk-mobile-client:2.16.6'
-    implementation 'com.amazonaws:aws-android-sdk-s3:2.16.6'
-    implementation 'com.amazonaws:aws-android-sdk-cognito:2.16.6'
-    implementation 'com.amazonaws:aws-android-sdk-auth-userpools:2.16.6'
-    implementation 'com.amazonaws:aws-android-sdk-auth-ui:2.6.10'
-    implementation 'commons-io:commons-io:2.6'
+    implementation 'io.flutter:flutter_embedding_debug:1.0.0-bd539267b42051b0da3d16ffa8f48949dce8aa8f'
+
+    implementation 'com.amazonaws:aws-android-sdk-mobile-client:2.42.0'
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.42.0'
+    implementation 'commons-io:commons-io:20030203.000550'
 
 }
