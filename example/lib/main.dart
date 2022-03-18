@@ -32,16 +32,6 @@ class SimpleS3TestState extends State<SimpleS3Test> {
   bool uploaded = false;
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +40,9 @@ class SimpleS3TestState extends State<SimpleS3Test> {
             stream: _simpleS3.getUploadPercentage,
             builder: (context, snapshot) {
               return new Text(
-                snapshot.data == null ? "Simple S3 Test" : "Uploaded: ${snapshot.data}",
+                snapshot.data == null
+                    ? "Simple S3 Test"
+                    : "Uploaded: ${snapshot.data}",
               );
             }),
       ),
@@ -61,7 +53,8 @@ class SimpleS3TestState extends State<SimpleS3Test> {
                 : Image.file(selectedFile!)
             : GestureDetector(
                 onTap: () async {
-                  PickedFile _pickedFile = (await ImagePicker().getImage(source: ImageSource.gallery))!;
+                  PickedFile _pickedFile = (await ImagePicker()
+                      .getImage(source: ImageSource.gallery))!;
                   setState(() {
                     selectedFile = File(_pickedFile.path);
                   });
@@ -82,7 +75,10 @@ class SimpleS3TestState extends State<SimpleS3Test> {
               onPressed: () async {
                 if (uploaded) {
                   print(await SimpleS3.delete(
-                      "test/${selectedFile!.path.split("/").last}", Credentials.s3_bucketName, Credentials.s3_poolD, AWSRegions.apSouth1,
+                      "test/${selectedFile!.path.split("/").last}",
+                      Credentials.s3_bucketName,
+                      Credentials.s3_poolD,
+                      AWSRegions.apSouth1,
                       debugLog: true));
                   setState(() {
                     selectedFile = null;
@@ -94,6 +90,16 @@ class SimpleS3TestState extends State<SimpleS3Test> {
             )
           : null,
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   Future<String?> _upload() async {
