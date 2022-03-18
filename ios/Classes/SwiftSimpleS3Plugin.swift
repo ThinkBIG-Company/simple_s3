@@ -11,21 +11,17 @@ enum FluterChannels {
 enum FluterMethods {
     static let upload = "upload"
     static let delete = "delete"
-    
 }
 
 public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
     private var events: FlutterEventSink?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-
-
         let channel = FlutterMethodChannel(name: FluterChannels.methods, binaryMessenger: registrar.messenger())
         let eventChannel = FlutterEventChannel(name: FluterChannels.events, binaryMessenger: registrar.messenger())
         let instance = SwiftSimpleS3Plugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
         eventChannel.setStreamHandler(instance)
-
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -41,10 +37,7 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
         }
     }
 
-
-
     private func upload(result: @escaping FlutterResult, args: Any?) {
-
         let argsMap = args as! NSDictionary
         if  let filePath = argsMap["filePath"], let s3FolderPath = argsMap["s3FolderPath"], let subRegion = argsMap["subRegion"],
             let fileName = argsMap["fileName"], let poolID = argsMap["poolID"], let accessControl = argsMap["accessControl"],
@@ -57,15 +50,12 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
             var acl = AWSS3ObjectCannedACL.unknown
             let acs = accessControl as! Int
 
-
             let credentialsProvider = AWSCognitoCredentialsProvider(regionType: parsedRegion(), identityPoolId: poolID as! String)
             let configuration = AWSServiceConfiguration(region: parsedSubRegion(), credentialsProvider: credentialsProvider)
 
             AWSServiceManager.default().defaultServiceConfiguration = configuration
 
-
             let uploadRequest = AWSS3TransferManagerUploadRequest()!
-
             uploadRequest.body = url as URL
 
             if(!folder.isEmpty && folder != "") {
@@ -73,10 +63,6 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
             } else {
                 uploadRequest.key = (fileName as! String)
             }
-
-
-
-
 
             switch acs {
             case 1:
@@ -97,21 +83,19 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
                 acl = AWSS3ObjectCannedACL.unknown
             }
 
-
             uploadRequest.bucket = bucketName as? String
             uploadRequest.contentType = contentType as? String
             uploadRequest.acl = acl
 
-            uploadRequest.uploadProgress = { (bytesSent, totalBytesSent,
-                          totalBytesExpectedToSend) -> Void in
-                          DispatchQueue.main.async(execute: {
-                           let uploadedPercentage = ( (Float(totalBytesSent) / Float(totalBytesExpectedToSend))) * 100
-                            if(self.events != nil){self.events!(Int(uploadedPercentage))}
-                                
-                           })
-                       }
+            uploadRequest.uploadProgress = { (bytesSent, totalBytesSent, totalBytesExpectedToSend) -> Void in
+                DispatchQueue.main.async(execute: {
+                    let uploadedPercentage = ( (Float(totalBytesSent) / Float(totalBytesExpectedToSend))) * 100
 
-
+                    if(self.events != nil) {
+                        self.events!(Int(uploadedPercentage))
+                    }
+                })
+            }
 
             let transferManager = AWSS3TransferManager.default()
             transferManager.upload(uploadRequest).continueWith { (task) -> AnyObject? in
@@ -182,7 +166,7 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
                 return nil
             }
 
-        }else {
+        } else {
             print("Native: One or more arguments is missing while calling func()")
             result(nil)
         }
@@ -191,9 +175,7 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
 }
 
 extension SwiftSimpleS3Plugin : FlutterStreamHandler {
-
-    public func onListen(withArguments arguments: Any?,
-                         eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         self.events = events
         return nil
     }
