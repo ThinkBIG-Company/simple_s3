@@ -9,7 +9,7 @@ class SimpleS3 {
   static const MethodChannel _methodChannel = const MethodChannel('simple_s3');
 
   static const EventChannel _eventChannel =
-      const EventChannel("simple_s3_events");
+      const EventChannel('simple_s3_events');
 
   ///Provide stream of dynamic type. This stream contains upload percentage.
   Stream get getUploadPercentage => _eventChannel.receiveBroadcastStream();
@@ -25,7 +25,7 @@ class SimpleS3 {
     String secretKey,
     String poolID,
     _AWSRegion region, {
-    String s3FolderPath: "",
+    String s3FolderPath: '',
     String? fileName,
     _AWSRegion? subRegion,
     S3AccessControl accessControl: S3AccessControl.publicRead,
@@ -37,12 +37,14 @@ class SimpleS3 {
     var result;
     String contentType;
 
+    print('simple_s3_dart check file exists');
     if (!await file.exists()) {
       throw SimpleS3Errors.FileDoesNotExistsError;
     }
+    print('simple_s3_dart file check success');
 
     if (!(fileName != null && fileName.length > 0)) {
-      String originalFileName = file.path.split('/').last.replaceAll(" ", "");
+      String originalFileName = file.path.split('/').last.replaceAll(' ', '');
 
       if (useTimeStamp) {
         int timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -51,62 +53,65 @@ class SimpleS3 {
           fileName = '$timestamp\_$originalFileName';
         } else {
           fileName =
-              '${originalFileName.split(".").first}\_$timestamp\.${originalFileName.split(".").last}';
+              '${originalFileName.split('.').first}\_$timestamp\.${originalFileName.split('.').last}';
         }
       } else
         fileName = originalFileName;
     }
+    print('simple_s3_dart fileName $fileName');
 
     contentType = mime(fileName)!;
 
     if (debugLog) {
       debugPrint('S3 Upload Started <-----------------');
-      debugPrint(" ");
-      debugPrint("File Name: $fileName");
-      debugPrint(" ");
-      debugPrint("Content Type: $contentType");
-      debugPrint(" ");
+      debugPrint(' ');
+      debugPrint('File Name: $fileName');
+      debugPrint(' ');
+      debugPrint('Content Type: $contentType');
+      debugPrint(' ');
     }
 
-    args.putIfAbsent("accessKey", () => accessKey);
-    args.putIfAbsent("secretKey", () => secretKey);
+    args.putIfAbsent('accessKey', () => accessKey);
+    args.putIfAbsent('secretKey', () => secretKey);
 
-    args.putIfAbsent("filePath", () => file.path);
-    args.putIfAbsent("poolID", () => poolID);
-    args.putIfAbsent("region", () => region.region);
-    args.putIfAbsent("bucketName", () => bucketName);
-    args.putIfAbsent("fileName", () => fileName);
-    args.putIfAbsent("s3FolderPath", () => s3FolderPath);
-    args.putIfAbsent("debugLog", () => debugLog);
-    args.putIfAbsent("contentType", () => contentType);
-    args.putIfAbsent(
-        "subRegion", () => subRegion != null ? subRegion.region : "");
-    args.putIfAbsent("accessControl", () => accessControl.index);
+    args.putIfAbsent('filePath', () => file.path);
+    args.putIfAbsent('poolID', () => poolID);
+    args.putIfAbsent('region', () => region.region);
+    args.putIfAbsent('bucketName', () => bucketName);
+    args.putIfAbsent('fileName', () => fileName);
+    args.putIfAbsent('s3FolderPath', () => s3FolderPath);
+    args.putIfAbsent('debugLog', () => debugLog);
+    args.putIfAbsent('contentType', () => contentType);
+    args.putIfAbsent('subRegion', () => subRegion != null ? subRegion.region : '');
+    args.putIfAbsent('accessControl', () => accessControl.index);
 
+    print('simple_s3_dart args $args');
+
+    print('simple_s3_dart upload $args');
     bool methodResult = await _methodChannel.invokeMethod('upload', args);
 
     if (methodResult) {
       String _region = subRegion != null ? subRegion.region : region.region;
-      String _path = s3FolderPath != ""
-          ? bucketName + "/" + s3FolderPath + "/" + fileName
-          : bucketName + "/" + fileName;
+      String _path = s3FolderPath != ''
+          ? bucketName + '/' + s3FolderPath + '/' + fileName
+          : bucketName + '/' + fileName;
 
-      result = "https://s3-$_region.amazonaws.com/$_path";
+      result = 'https://s3-$_region.amazonaws.com/$_path';
 
       if (debugLog) {
-        debugPrint("Status: Uploaded");
-        debugPrint(" ");
-        debugPrint("URL: $result");
-        debugPrint(" ");
-        debugPrint("Access Type: $accessControl");
-        debugPrint(" ");
+        debugPrint('Status: Uploaded');
+        debugPrint(' ');
+        debugPrint('URL: $result');
+        debugPrint(' ');
+        debugPrint('Access Type: $accessControl');
+        debugPrint(' ');
         debugPrint('S3 Upload Completed-------------->');
-        debugPrint(" ");
+        debugPrint(' ');
       }
     } else {
       if (debugLog) {
-        debugPrint("Status: Error");
-        debugPrint(" ");
+        debugPrint('Status: Error');
+        debugPrint(' ');
         debugPrint('S3 Upload Error------------------>');
       }
       throw SimpleS3Errors.UploadError;
@@ -131,35 +136,35 @@ class SimpleS3 {
 
     if (debugLog) {
       debugPrint('S3 Delete Object Started <--------------');
-      debugPrint(" ");
-      debugPrint("Object Path: $filePath");
-      debugPrint(" ");
+      debugPrint(' ');
+      debugPrint('Object Path: $filePath');
+      debugPrint(' ');
     }
 
-    args.putIfAbsent("accessKey", () => accessKey);
-    args.putIfAbsent("secretKey", () => secretKey);
+    args.putIfAbsent('accessKey', () => accessKey);
+    args.putIfAbsent('secretKey', () => secretKey);
 
-    args.putIfAbsent("poolID", () => poolID);
-    args.putIfAbsent("region", () => region.region);
-    args.putIfAbsent("bucketName", () => bucketName);
-    args.putIfAbsent("filePath", () => filePath);
-    args.putIfAbsent("debugLog", () => debugLog);
+    args.putIfAbsent('poolID', () => poolID);
+    args.putIfAbsent('region', () => region.region);
+    args.putIfAbsent('bucketName', () => bucketName);
+    args.putIfAbsent('filePath', () => filePath);
+    args.putIfAbsent('debugLog', () => debugLog);
     args.putIfAbsent(
-        "subRegion", () => subRegion != null ? subRegion.region : "");
+        'subRegion', () => subRegion != null ? subRegion.region : '');
 
     bool methodResult = await _methodChannel.invokeMethod('delete', args);
 
     if (methodResult) {
       if (debugLog) {
-        debugPrint(" ");
-        debugPrint("S3 Delete Completed------------------>");
-        debugPrint(" ");
+        debugPrint(' ');
+        debugPrint('S3 Delete Completed------------------>');
+        debugPrint(' ');
       }
     } else {
       if (debugLog) {
-        debugPrint("Status: Error");
-        debugPrint(" ");
-        debugPrint("S3 Object Deletion Error------------->");
+        debugPrint('Status: Error');
+        debugPrint(' ');
+        debugPrint('S3 Object Deletion Error------------->');
       }
       throw SimpleS3Errors.DeleteError;
     }
@@ -177,51 +182,51 @@ class _AWSRegion {
 ///AWS regions class created for consistency maintenance
 ///contains static getters which returns an private class internally.
 class AWSRegions {
-  static _AWSRegion get afSouth1 => new _AWSRegion("af-south-1");
+  static _AWSRegion get afSouth1 => new _AWSRegion('af-south-1');
 
-  static _AWSRegion get apEast1 => new _AWSRegion("ap-east-1");
+  static _AWSRegion get apEast1 => new _AWSRegion('ap-east-1');
 
-  static _AWSRegion get apNorthEast1 => new _AWSRegion("ap-northeast-1");
+  static _AWSRegion get apNorthEast1 => new _AWSRegion('ap-northeast-1');
 
-  static _AWSRegion get apNorthEast2 => new _AWSRegion("ap-northeast-2");
+  static _AWSRegion get apNorthEast2 => new _AWSRegion('ap-northeast-2');
 
-  static _AWSRegion get apSouth1 => new _AWSRegion("ap-south-1");
+  static _AWSRegion get apSouth1 => new _AWSRegion('ap-south-1');
 
-  static _AWSRegion get apSouthEast1 => new _AWSRegion("ap-southeast-1");
+  static _AWSRegion get apSouthEast1 => new _AWSRegion('ap-southeast-1');
 
-  static _AWSRegion get apSouthEast2 => new _AWSRegion("ap-southeast-2");
+  static _AWSRegion get apSouthEast2 => new _AWSRegion('ap-southeast-2');
 
-  static _AWSRegion get caCentral1 => new _AWSRegion("ca-central-1");
+  static _AWSRegion get caCentral1 => new _AWSRegion('ca-central-1');
 
-  static _AWSRegion get cnNorth1 => new _AWSRegion("cn-north-1");
+  static _AWSRegion get cnNorth1 => new _AWSRegion('cn-north-1');
 
-  static _AWSRegion get cnNorthWest1 => new _AWSRegion("cn-northwest-1");
+  static _AWSRegion get cnNorthWest1 => new _AWSRegion('cn-northwest-1');
 
-  static _AWSRegion get euCentral1 => new _AWSRegion("eu-central-1");
+  static _AWSRegion get euCentral1 => new _AWSRegion('eu-central-1');
 
-  static _AWSRegion get euNorth1 => new _AWSRegion("eu-north-1");
+  static _AWSRegion get euNorth1 => new _AWSRegion('eu-north-1');
 
-  static _AWSRegion get euWest1 => new _AWSRegion("eu-west-1");
+  static _AWSRegion get euWest1 => new _AWSRegion('eu-west-1');
 
-  static _AWSRegion get euWest2 => new _AWSRegion("eu-west-2");
+  static _AWSRegion get euWest2 => new _AWSRegion('eu-west-2');
 
-  static _AWSRegion get euWest3 => new _AWSRegion("eu-west-3");
+  static _AWSRegion get euWest3 => new _AWSRegion('eu-west-3');
 
-  static _AWSRegion get meSouth1 => new _AWSRegion("me-south-1");
+  static _AWSRegion get meSouth1 => new _AWSRegion('me-south-1');
 
-  static _AWSRegion get saEast1 => new _AWSRegion("sa-east-1");
+  static _AWSRegion get saEast1 => new _AWSRegion('sa-east-1');
 
-  static _AWSRegion get usEast1 => new _AWSRegion("us-east-1");
+  static _AWSRegion get usEast1 => new _AWSRegion('us-east-1');
 
-  static _AWSRegion get usEast2 => new _AWSRegion("us-east-2");
+  static _AWSRegion get usEast2 => new _AWSRegion('us-east-2');
 
-  static _AWSRegion get usGovEast1 => new _AWSRegion("us-gov-east-1");
+  static _AWSRegion get usGovEast1 => new _AWSRegion('us-gov-east-1');
 
-  static _AWSRegion get usGovWest1 => new _AWSRegion("us-gov-west-1");
+  static _AWSRegion get usGovWest1 => new _AWSRegion('us-gov-west-1');
 
-  static _AWSRegion get usWest1 => new _AWSRegion("us-west-1");
+  static _AWSRegion get usWest1 => new _AWSRegion('us-west-1');
 
-  static _AWSRegion get usWest2 => new _AWSRegion("us-west-2");
+  static _AWSRegion get usWest2 => new _AWSRegion('us-west-2');
 }
 
 ///TimeStamp enum
