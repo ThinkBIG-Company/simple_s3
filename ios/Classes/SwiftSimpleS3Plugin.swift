@@ -41,8 +41,7 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
         let argsMap = args as! NSDictionary
         if  let filePath = argsMap["filePath"], let s3FolderPath = argsMap["s3FolderPath"], let subRegion = argsMap["subRegion"],
             let fileName = argsMap["fileName"], let poolID = argsMap["poolID"], let accessControl = argsMap["accessControl"],
-            let bucketName = argsMap["bucketName"], let region = argsMap["region"], let contentType = argsMap["contentType"],
-            let accessKey = argsMap["accessKey"], let secretKey = argsMap["secretKey"] {
+            let bucketName = argsMap["bucketName"], let region = argsMap["region"], let contentType = argsMap["contentType"] {
             
             let parsedRegion = "\(region)".aws_regionTypeValue
             let parsedSubRegion = subRegion as! String != "" ? "\(subRegion)".aws_regionTypeValue : parsedRegion
@@ -51,7 +50,7 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
             var acl = AWSS3ObjectCannedACL.unknown
             let acs = accessControl as! Int
             
-            if ((accessKey != nil && !accessKey.trimmingCharacters(in: .whitespaces).isEmpty) && (secretKey != nil && !secretKey.trimmingCharacters(in: .whitespaces).isEmpty)) {
+            if let accessKey = argsMap["accessKey"], !(accessKey as AnyObject).isEmpty, let secretKey = argsMap["secretKey"], !(secretKey as AnyObject).isEmpty {
                 let credentialsProvider = AWSStaticCredentialsProvider(accessKey: accessKey as! String, secretKey: secretKey as! String)
                 let configuration = AWSServiceConfiguration(region: parsedSubRegion(), credentialsProvider: credentialsProvider)
                 
