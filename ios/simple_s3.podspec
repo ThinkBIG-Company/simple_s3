@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'simple_s3'
-  s.version          = '0.0.1'
+  s.version          = '0.4.0'
   s.summary          = 'An advanced yet simple to use AWS S3 plugin for upload and delete ANY file in Android and iOS with upload percentage.'
   s.description      = <<-DESC
 An advanced yet simple to use AWS S3 plugin for upload and delete ANY file in Android and iOS with upload percentage.
