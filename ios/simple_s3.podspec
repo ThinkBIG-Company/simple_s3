@@ -18,9 +18,9 @@ An advanced yet simple to use AWS S3 plugin for upload and delete ANY file in An
   s.platform = :ios, '8.0'
   
   
-  s.dependency 'AWSS3'
-  s.dependency 'AWSCore'
-  s.dependency 'AWSCognito'
+  s.dependency 'AWSS3', '2.19.1'
+  s.dependency 'AWSCore', '2.19.1'
+  s.dependency 'AWSCognito', '2.19.1'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
