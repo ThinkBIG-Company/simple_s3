@@ -50,7 +50,7 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
             var acl = AWSS3ObjectCannedACL.unknown
             let acs = accessControl as! Int
             
-            if let accessKey = argsMap["accessKey"], !(accessKey as AnyObject).isEmpty, let secretKey = argsMap["secretKey"], !(secretKey as AnyObject).isEmpty {
+            if let accessKey = argsMap["accessKey"], !(accessKey as! String).isEmpty, let secretKey = argsMap["secretKey"], !(secretKey as! String).isEmpty {
                 let credentialsProvider = AWSStaticCredentialsProvider(accessKey: accessKey as! String, secretKey: secretKey as! String)
                 let configuration = AWSServiceConfiguration(region: parsedSubRegion(), credentialsProvider: credentialsProvider)
                 
