@@ -14,6 +14,9 @@ class SimpleS3 {
   ///Provide stream of dynamic type. This stream contains upload percentage.
   Stream get getUploadPercentage => _eventChannel.receiveBroadcastStream();
 
+  int maxRetryCount = 0;
+  int alreadyTried = 0;
+
   ///Upload function takes File, S3 bucket name, pool ID and region as required param
   ///Default access control is PUBLIC_READ
   ///Debugging is disable by default this will prevent any logs and messages
@@ -37,11 +40,9 @@ class SimpleS3 {
     var result;
     String contentType;
 
-    print('simple_s3_dart check file exists');
     if (!await file.exists()) {
       throw SimpleS3Errors.FileDoesNotExistsError;
     }
-    print('simple_s3_dart file check success');
 
     if (!(fileName != null && fileName.length > 0)) {
       String originalFileName = file.path.split('/').last.replaceAll(' ', '');
@@ -58,7 +59,6 @@ class SimpleS3 {
       } else
         fileName = originalFileName;
     }
-    print('simple_s3_dart fileName $fileName');
 
     contentType = mime(fileName)!;
 
@@ -82,12 +82,10 @@ class SimpleS3 {
     args.putIfAbsent('s3FolderPath', () => s3FolderPath);
     args.putIfAbsent('debugLog', () => debugLog);
     args.putIfAbsent('contentType', () => contentType);
-    args.putIfAbsent('subRegion', () => subRegion != null ? subRegion.region : '');
+    args.putIfAbsent(
+        'subRegion', () => subRegion != null ? subRegion.region : '');
     args.putIfAbsent('accessControl', () => accessControl.index);
 
-    print('simple_s3_dart args $args');
-
-    print('simple_s3_dart upload $args');
     bool methodResult = await _methodChannel.invokeMethod('upload', args);
 
     if (methodResult) {
