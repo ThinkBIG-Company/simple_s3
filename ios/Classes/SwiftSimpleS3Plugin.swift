@@ -150,10 +150,17 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
             let parsedRegion = "\(region)".aws_regionTypeValue
             let parsedSubRegion = subRegion as! String != "" ? "\(subRegion)".aws_regionTypeValue : parsedRegion
             
-            let credentialsProvider = AWSCognitoCredentialsProvider(regionType: parsedRegion(), identityPoolId: poolID as! String)
-            let configuration = AWSServiceConfiguration(region: parsedSubRegion(), credentialsProvider: credentialsProvider)
-            
-            AWSServiceManager.default().defaultServiceConfiguration = configuration
+            if let accessKey = argsMap["accessKey"], !(accessKey as! String).isEmpty, let secretKey = argsMap["secretKey"], !(secretKey as! String).isEmpty {
+                let credentialsProvider = AWSStaticCredentialsProvider(accessKey: accessKey as! String, secretKey: secretKey as! String)
+                let configuration = AWSServiceConfiguration(region: parsedSubRegion(), credentialsProvider: credentialsProvider)
+                
+                AWSServiceManager.default().defaultServiceConfiguration = configuration
+            } else {
+                let credentialsProvider = AWSCognitoCredentialsProvider(regionType: parsedRegion(), identityPoolId: poolID as! String)
+                let configuration = AWSServiceConfiguration(region: parsedSubRegion(), credentialsProvider: credentialsProvider)
+                
+                AWSServiceManager.default().defaultServiceConfiguration = configuration
+            }
             
             AWSS3.register(with: configuration!, forKey: "defaultKey")
             let s3 = AWSS3.s3(forKey: "defaultKey")
