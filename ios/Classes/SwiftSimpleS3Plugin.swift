@@ -155,14 +155,15 @@ public class SwiftSimpleS3Plugin: NSObject, FlutterPlugin {
                 let configuration = AWSServiceConfiguration(region: parsedSubRegion(), credentialsProvider: credentialsProvider)
                 
                 AWSServiceManager.default().defaultServiceConfiguration = configuration
+				AWSS3.register(with: configuration!, forKey: "defaultKey")
             } else {
                 let credentialsProvider = AWSCognitoCredentialsProvider(regionType: parsedRegion(), identityPoolId: poolID as! String)
                 let configuration = AWSServiceConfiguration(region: parsedSubRegion(), credentialsProvider: credentialsProvider)
                 
                 AWSServiceManager.default().defaultServiceConfiguration = configuration
+				AWSS3.register(with: configuration!, forKey: "defaultKey")
             }
             
-            AWSS3.register(with: configuration!, forKey: "defaultKey")
             let s3 = AWSS3.s3(forKey: "defaultKey")
             let deleteObjectRequest = AWSS3DeleteObjectRequest()
             deleteObjectRequest?.bucket = (bucketName as! String)
